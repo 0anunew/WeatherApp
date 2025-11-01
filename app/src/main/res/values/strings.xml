@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">WeatherApp</string>
+    <string name="location_service_not_enabled_message">Location Not Enabled</string>
+    <string name="location_service_enabled_message">Location Already Enabled\n</string>
+</resources>
