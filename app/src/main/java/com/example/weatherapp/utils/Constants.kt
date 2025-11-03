@@ -1,0 +1,22 @@
+package com.example.weatherapp.utils
+
+import android.Manifest
+import android.content.Context
+import android.net.ConnectivityManager
+import androidx.annotation.RequiresPermission
+
+object Constants {
+
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
+    fun isNetworkAvailable(context: Context): Boolean{
+        val connectivityManager: ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetwork?:return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(networkInfo)?:return false
+        return when{
+            activeNetwork.hasTransport(android.net.NetworkCapabilities.TRANSPORT_WIFI)->true
+            activeNetwork.hasTransport(android.net.NetworkCapabilities.TRANSPORT_CELLULAR)->true
+            activeNetwork.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET)->true
+            else->false
+        }
+    }
+}

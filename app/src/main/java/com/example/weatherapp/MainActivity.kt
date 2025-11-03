@@ -13,11 +13,11 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.weatherapp.utils.Constants
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity() {
                     val latitude = p0.lastLocation?.latitude
                     val longitude = p0.lastLocation?.longitude
                     Log.d("Location", "onLocationResult: $latitude, $longitude")
+                    getLocationWeatherDetails()
                 }
             }, Looper.myLooper()
         )
@@ -135,4 +136,12 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun getLocationWeatherDetails(){
+        if(Constants.isNetworkAvailable(this)){
+            Toast.makeText(this, "Internet Connection Available", Toast.LENGTH_SHORT).show()
+
+        }else{
+            Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show()
+        }
+    }
 }
