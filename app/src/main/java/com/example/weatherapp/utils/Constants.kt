@@ -7,6 +7,10 @@ import androidx.annotation.RequiresPermission
 
 object Constants {
 
+    const val APP_ID: String ="9e8f0c6401a644c05fa120f76d342049"
+    const val BASE_URL = "https://api.openweathermap.org/data/"
+    const val METRIC_UNIT = "metric"
+
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     fun isNetworkAvailable(context: Context): Boolean{
         val connectivityManager: ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

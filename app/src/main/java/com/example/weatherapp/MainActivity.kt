@@ -24,6 +24,10 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
     private val requestLocationCode = 123123
@@ -59,15 +63,15 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("MissingPermission")
     private fun requestLocationData() {
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 100).build()
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000).build()
         mFusedLocationClient.requestLocationUpdates(
             locationRequest,
             object : LocationCallback() {
-                override fun onLocationResult(p0: LocationResult) {
-                    val latitude = p0.lastLocation?.latitude
-                    val longitude = p0.lastLocation?.longitude
-                    Log.d("Location", "onLocationResult: $latitude, $longitude")
-                    getLocationWeatherDetails()
+                override fun onLocationResult(locationResult: LocationResult) {
+                    val lat: Double? = locationResult.lastLocation?.latitude
+                    val long: Double? = locationResult.lastLocation?.longitude
+                    Log.d("Location", "onLocationResult: $lat, $long")
+                    getLocationWeatherDetails(lat!!,long!!)
                 }
             }, Looper.myLooper()
         )
@@ -136,12 +140,52 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun getLocationWeatherDetails(){
+    private fun getLocationWeatherDetails(latitude: Double,longitude: Double){
         if(Constants.isNetworkAvailable(this)){
-            Toast.makeText(this, "Internet Connection Available", Toast.LENGTH_SHORT).show()
+            val retrofit = Retrofit.Builder()
+                .baseUrl(Constants.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            val weatherServiceCallAPI = retrofit.create(WeatherServiceAPI::class.java)
+            val weatherListCall = weatherServiceCallAPI.getCurrentWeatherData(
+                latitude,
+                longitude,
+                Constants.APP_ID
+            )
+            weatherListCall.enqueue(object : Callback<WeatherJSON>{
+                override fun onResponse(
+                    call: retrofit2.Call<WeatherJSON?>,
+                    response: Response<WeatherJSON?>
+                ) {
+                    if(response.isSuccessful){
+                        val weatherList: WeatherJSON? = response.body()
+                        Toast.makeText(this@MainActivity, "$weatherList", Toast.LENGTH_SHORT).show()
+                        Log.i("Coordinate","${weatherList?.coord}")
+                        Log.i("Weather ", "${weatherList?.weather}")
+                        Log.i("Base ", "${weatherList?.base}")
+                        Log.i("Main ", "${weatherList?.main}")
+                        Log.i("Wind ", "${weatherList?.wind}")
+                        Log.i("Clouds ", "${weatherList?.clouds}")
+                        Log.i("Dt ", "${weatherList?.dt}")
+                        Log.i("Sys ", "${weatherList?.sys}")
+                        Log.i("Timezone ", "${weatherList?.timezone}")
+                        Log.i("Id ", "${weatherList?.id}")
+                        Log.i("Name ", "${weatherList?.name}")
+                        Log.i("Cod ", "${weatherList?.cod}")
+                    }
+                }
+
+                override fun onFailure(
+                    call: retrofit2.Call<WeatherJSON?>,
+                    t: Throwable
+                ) {
+                    Toast.makeText(this@MainActivity, "Error", Toast.LENGTH_SHORT).show()
+                }
+
+            })
 
         }else{
-            Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show()
         }
     }
 }
