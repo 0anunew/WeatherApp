@@ -186,6 +186,7 @@ class MainActivity : AppCompatActivity() {
             })
 
         }else{
+            Toast.makeText(this@MainActivity, "No Internet Connection", Toast.LENGTH_SHORT).show()
         }
     }
 }
